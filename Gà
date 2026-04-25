@@ -1,0 +1,85 @@
+-- Delta / Fluxus Script
+local Player = game.Players.LocalPlayer
+local UIS = game:GetService("UserInputService")
+
+-- Tạo giao diện
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "DeltaCheat"
+ScreenGui.Parent = Player:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false -- Quan trọng: Chết không mất menu
+
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, 160, 0, 150)
+Main.Position = UDim2.new(0.5, -80, 0.3, 0)
+Main.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Main.Active = true
+Main.Draggable = true -- Có thể dùng tay kéo trên điện thoại
+Main.Parent = ScreenGui
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Text = "MOBILE MENU"
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Title.Parent = Main
+
+-- Biến lưu trạng thái
+local speedActive = false
+local invisActive = false
+
+-- Nút Chạy Nhanh
+local SpeedBtn = Instance.new("TextButton")
+SpeedBtn.Size = UDim2.new(0.9, 0, 0, 40)
+SpeedBtn.Position = UDim2.new(0.05, 0, 0.3, 0)
+SpeedBtn.Text = "Speed: OFF"
+SpeedBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+SpeedBtn.Parent = Main
+
+SpeedBtn.MouseButton1Click:Connect(function()
+    speedActive = not speedActive
+    if speedActive then
+        SpeedBtn.Text = "Speed: ON"
+        SpeedBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+    else
+        SpeedBtn.Text = "Speed: OFF"
+        SpeedBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        if Player.Character and Player.Character:FindFirstChild("Humanoid") then
+            Player.Character.Humanoid.WalkSpeed = 16
+        end
+    end
+end)
+
+-- Nút Tàng Hình
+local InvisBtn = Instance.new("TextButton")
+InvisBtn.Size = UDim2.new(0.9, 0, 0, 40)
+InvisBtn.Position = UDim2.new(0.05, 0, 0.65, 0)
+InvisBtn.Text = "Invis: OFF"
+InvisBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+InvisBtn.Parent = Main
+
+InvisBtn.MouseButton1Click:Connect(function()
+    invisActive = not invisActive
+    InvisBtn.Text = invisActive and "Invis: ON" or "Invis: OFF"
+    InvisBtn.BackgroundColor3 = invisActive and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(60, 60, 60)
+    
+    local char = Player.Character
+    if char then
+        for _, v in pairs(char:GetDescendants()) do
+            if v:IsA("BasePart") or v:IsA("Decal") then
+                if v.Name ~= "HumanoidRootPart" then
+                    v.Transparency = invisActive and 1 or 0
+                end
+            end
+        end
+    end
+end)
+
+-- Vòng lặp duy trì tốc độ (Tránh bị game reset)
+task.spawn(function()
+    while true do
+        if speedActive and Player.Character and Player.Character:FindFirstChild("Humanoid") then
+            Player.Character.Humanoid.WalkSpeed = 100
+        end
+        task.wait(0.1)
+    end
+end)
