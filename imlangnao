@@ -1,18 +1,16 @@
 local Player = game.Players.LocalPlayer
-local UIS = game:GetService("UserInputService")
-local speedActive, invisActive, hitboxActive = false, false, false
-local SavedPosition = nil
+local speedOn, invisOn, hitOn = false, false, false
+local SavedPos = nil
 
--- Giao diện chính
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "DeltaFixFinal"
+ScreenGui.Name = "Delta_V3_Fix"
 ScreenGui.Parent = Player:WaitForChild("PlayerGui")
 ScreenGui.ResetOnSpawn = false
 
 local Main = Instance.new("Frame")
 Main.Size = UDim2.new(0, 200, 0, 320)
 Main.Position = UDim2.new(0.5, -100, 0.2, 0)
-Main.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 Main.Active, Main.Draggable = true, true
 Main.Parent = ScreenGui
 Instance.new("UICorner", Main)
@@ -29,193 +27,64 @@ local function createBtn(text, pos, color)
     return btn
 end
 
--- 1. LƯU KHU VỰC
-createBtn("Lưu Khu Vực", UDim2.new(0.05, 0, 0.08, 0), Color3.fromRGB(0, 100, 200)).MouseButton1Click:Connect(function()
-    if Player.Character then SavedPosition = Player.Character.HumanoidRootPart.CFrame end
+-- 1, 2, 3: TELEPORT
+createBtn("Lưu Khu Vực", UDim2.new(0.05, 0, 0.05, 0), Color3.fromRGB(0, 80, 200)).MouseButton1Click:Connect(function()
+    if Player.Character then SavedPos = Player.Character.HumanoidRootPart.CFrame end
 end)
 
--- 2. ĐẾN KHU VỰC
-createBtn("Đến Khu Vực", UDim2.new(0.05, 0, 0.21, 0), Color3.fromRGB(0, 150, 100)).MouseButton1Click:Connect(function()
-    if SavedPosition and Player.Character then Player.Character.HumanoidRootPart.CFrame = SavedPosition end
+createBtn("Đến Khu Vực", UDim2.new(0.05, 0, 0.18, 0), Color3.fromRGB(0, 150, 80)).MouseButton1Click:Connect(function()
+    if SavedPos and Player.Character then Player.Character.HumanoidRootPart.CFrame = SavedPos end
 end)
 
--- 3. XÓA KHU VỰC
-createBtn("Xóa Khu Vực", UDim2.new(0.05, 0, 0.34, 0), Color3.fromRGB(150, 50, 50)).MouseButton1Click:Connect(function()
-    SavedPosition = nil
+createBtn("Xóa Khu Vực", UDim2.new(0.05, 0, 0.31, 0), Color3.fromRGB(150, 0, 0)).MouseButton1Click:Connect(function()
+    SavedPos = nil
 end)
 
--- 4. HITBOX (Cực nhỏ & Không kẹt sàn)
-local HitBtn = createBtn("Hitbox Under: OFF", UDim2.new(0.05, 0, 0.47, 0), Color3.fromRGB(80, 80, 80))
-HitBtn.MouseButton1Click:Connect(function()
-    hitboxActive = not hitboxActive
+-- 4: HITBOX (FIX LỖI LÚN)
+local Hbtn = createBtn("Hitbox Small: OFF", UDim2.new(0.05, 0, 0.44, 0), Color3.fromRGB(80, 80, 80))
+Hbtn.MouseButton1Click:Connect(function()
+    hitOn = not hitOn
     local char = Player.Character
     if char and char:FindFirstChild("HumanoidRootPart") then
-        local root = char.HumanoidRootPart
-        local hum = char.Humanoid
-        if hitboxActive then
-            root.Size = Vector3.new(0.01, 0.01, 0.01)
-            hum.HipHeight = 1.5 -- Nâng nhẹ để không kẹt chân
-            HitBtn.Text = "Hitbox Under: ON"
-            HitBtn.BackgroundColor3 = Color3.fromRGB(200, 120, 0)
+        if hitOn then
+            char.HumanoidRootPart.Size = Vector3.new(0.1, 0.1, 0.1)
+            char.Humanoid.HipHeight = 1.0 -- Nâng nhẹ chân để không lún
+            Hbtn.Text = "Hitbox Small: ON"
+            Hbtn.BackgroundColor3 = Color3.fromRGB(200, 150, 0)
         else
-            root.Size = Vector3.new(2, 2, 1)
-            hum.HipHeight = 0
-            char:MoveTo(root.Position + Vector3.new(0, 3, 0)) -- Đẩy lên tránh lún
-            HitBtn.Text = "Hitbox Under: OFF"
-            HitBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+            char.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+            char.Humanoid.HipHeight = 0
+            char.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
+            Hbtn.Text = "Hitbox Small: OFF"
+            Hbtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
         end
     end
 end)
 
--- 5. CHẠY NHANH (Sửa lỗi ghi đè)
-local SpdBtn = createBtn("Chạy Nhanh: OFF", UDim2.new(0.05, 0, 0.60, 0), Color3.fromRGB(60, 60, 60))
-SpdBtn.MouseButton1Click:Connect(function()
-    speedActive = not speedActive
-    SpdBtn.Text = speedActive and "Chạy Nhanh: ON" or "Chạy Nhanh: OFF"
-    SpdBtn.BackgroundColor3 = speedActive and Color3.fromRGB(0, 180, 0) or Color3.fromRGB(60, 60, 60)
+-- 5: CHẠY NHANH (SPEED)
+local Sbtn = createBtn("Chạy Nhanh: OFF", UDim2.new(0.05, 0, 0.57, 0), Color3.fromRGB(60, 60, 60))
+Sbtn.MouseButton1Click:Connect(function()
+    speedOn = not speedOn
+    Sbtn.Text = speedOn and "Chạy Nhanh: ON" or "Chạy Nhanh: OFF"
+    Sbtn.BackgroundColor3 = speedOn and Color3.fromRGB(0, 180, 0) or Color3.fromRGB(60, 60, 60)
 end)
 
--- 6. TÀNG HÌNH
-local InvBtn = createBtn("Tàng Hình: OFF", UDim2.new(0.05, 0, 0.73, 0), Color3.fromRGB(60, 60, 60))
-InvBtn.MouseButton1Click:Connect(function()
-    invisActive = not invisActive
-    InvBtn.Text = invisActive and "Tàng Hình: ON" or "Tàng Hình: OFF"
+-- 6: TÀNG HÌNH (INVIS)
+local Ibtn = createBtn("Tàng Hình: OFF", UDim2.new(0.05, 0, 0.70, 0), Color3.fromRGB(60, 60, 60))
+Ibtn.MouseButton1Click:Connect(function()
+    invisOn = not invisOn
+    Ibtn.Text = invisOn and "Tàng Hình: ON" or "Tàng Hình: OFF"
     for _, v in pairs(Player.Character:GetDescendants()) do
         if (v:IsA("BasePart") or v:IsA("Decal")) and v.Name ~= "HumanoidRootPart" then
-            v.Transparency = invisActive and 1 or 0
+            v.Transparency = invisOn and 1 or 0
         end
     end
 end)
 
--- Duy trì Speed liên tục
+-- Vòng lặp duy trì Speed
 task.spawn(function()
     while true do
-        if speedActive and Player.Character and Player.Character:FindFirstChild("Humanoid") then
-            Player.Character.Humanoid.WalkSpeed = 100
-        end
-        task.wait(0.1)
-    end
-end)
-local SaveBtn = createBtn("Lưu Khu Vực", UDim2.new(0.05, 0, 0.1, 0), Color3.fromRGB(0, 120, 255))
-SaveBtn.MouseButton1Click:Connect(function()
-    if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-        SavedPosition = Player.Character.HumanoidRootPart.CFrame
-        SaveBtn.Text = "Đã Lưu!"
-        task.wait(1)
-        SaveBtn.Text = "Lưu Khu Vực"
-    end
-end)
-
--- 2. ĐẾN KHU VỰC
-local TpBtn = createBtn("Đến Khu Vực", UDim2.new(0.05, 0, 0.23, 0), Color3.fromRGB(0, 200, 100))
-TpBtn.MouseButton1Click:Connect(function()
-    if SavedPosition and Player.Character then
-        Player.Character.HumanoidRootPart.CFrame = SavedPosition
-    end
-end)
-
--- 3. XÓA KHU VỰC
-local ClearBtn = createBtn("Xóa Khu Vực", UDim2.new(0.05, 0, 0.36, 0), Color3.fromRGB(200, 50, 50))
-ClearBtn.MouseButton1Click:Connect(function()
-    SavedPosition = nil
-    ClearBtn.Text = "Đã Xóa!"
-    task.wait(1)
-    ClearBtn.Text = "Xóa Khu Vực"
-end)
-
--- 4. SỬA HITBOX (NHỎ & DƯỚI ĐẤT)
-local HitboxBtn = createBtn("Hitbox Under: OFF", UDim2.new(0.05, 0, 0.49, 0), Color3.fromRGB(100, 100, 100))
-HitboxBtn.MouseButton1Click:Connect(function()
-    hitboxActive = not hitboxActive
-    local root = Player.Character:FindFirstChild("HumanoidRootPart")
-    if root then
-        if hitboxActive then
-            root.Size = Vector3.new(0.5, 0.5, 0.5) -- Làm nhỏ hitbox
-            Player.Character.Humanoid.HipHeight = -2.5 -- Đưa hitbox xuống dưới đất
-            HitboxBtn.Text = "Hitbox Under: ON"
-            HitboxBtn.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
-        else
-            root.Size = Vector3.new(2, 2, 1) -- Kích thước gốc
-            Player.Character.Humanoid.HipHeight = 0
-            HitboxBtn.Text = "Hitbox Under: OFF"
-            HitboxBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-        end
-    end
-end)
-
--- 5. CHẠY NHANH
-local SpeedBtn = createBtn("Chạy Nhanh: OFF", UDim2.new(0.05, 0, 0.62, 0), Color3.fromRGB(60, 60, 60))
-SpeedBtn.MouseButton1Click:Connect(function()
-    speedActive = not speedActive
-    SpeedBtn.Text = speedActive and "Chạy Nhanh: ON" or "Chạy Nhanh: OFF"
-    SpeedBtn.BackgroundColor3 = speedActive and Color3.fromRGB(0, 180, 0) or Color3.fromRGB(60, 60, 60)
-end)
-
--- 6. TÀNG HÌNH
-local InvisBtn = createBtn("Tàng Hình: OFF", UDim2.new(0.05, 0, 0.75, 0), Color3.fromRGB(60, 60, 60))
-InvisBtn.MouseButton1Click:Connect(function()
-    invisActive = not invisActive
-    InvisBtn.Text = invisActive and "Tàng Hình: ON" or "Tàng Hình: OFF"
-    for _, v in pairs(Player.Character:GetDescendants()) do
-        if v:IsA("BasePart") or v:IsA("Decal") then
-            if v.Name ~= "HumanoidRootPart" then v.Transparency = invisActive and 1 or 0 end
-        end
-    end
-end)
-
--- Duy trì tốc độ
-task.spawn(function()
-    while true do
-        if speedActive and Player.Character and Player.Character:FindFirstChild("Humanoid") then
-            Player.Character.Humanoid.WalkSpeed = 100
-        end
-        task.wait(0.1)
-    end
-end)
-
-SpeedBtn.MouseButton1Click:Connect(function()
-    speedActive = not speedActive
-    if speedActive then
-        SpeedBtn.Text = "Speed: ON"
-        SpeedBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-    else
-        SpeedBtn.Text = "Speed: OFF"
-        SpeedBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-        if Player.Character and Player.Character:FindFirstChild("Humanoid") then
-            Player.Character.Humanoid.WalkSpeed = 16
-        end
-    end
-end)
-
--- Nút Tàng Hình
-local InvisBtn = Instance.new("TextButton")
-InvisBtn.Size = UDim2.new(0.9, 0, 0, 40)
-InvisBtn.Position = UDim2.new(0.05, 0, 0.65, 0)
-InvisBtn.Text = "Invis: OFF"
-InvisBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-InvisBtn.Parent = Main
-
-InvisBtn.MouseButton1Click:Connect(function()
-    invisActive = not invisActive
-    InvisBtn.Text = invisActive and "Invis: ON" or "Invis: OFF"
-    InvisBtn.BackgroundColor3 = invisActive and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(60, 60, 60)
-    
-    local char = Player.Character
-    if char then
-        for _, v in pairs(char:GetDescendants()) do
-            if v:IsA("BasePart") or v:IsA("Decal") then
-                if v.Name ~= "HumanoidRootPart" then
-                    v.Transparency = invisActive and 1 or 0
-                end
-            end
-        end
-    end
-end)
-
--- Vòng lặp duy trì tốc độ (Tránh bị game reset)
-task.spawn(function()
-    while true do
-        if speedActive and Player.Character and Player.Character:FindFirstChild("Humanoid") then
+        if speedOn and Player.Character and Player.Character:FindFirstChild("Humanoid") then
             Player.Character.Humanoid.WalkSpeed = 100
         end
         task.wait(0.1)
