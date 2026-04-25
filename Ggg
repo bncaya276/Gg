@@ -1,0 +1,90 @@
+local Player = game.Players.LocalPlayer
+local BatDauTocDo, BatDauTangHinh, BatDauHitbox = false, false, false
+local ViTriDaLuu = nil
+
+-- Tạo Menu
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "MenuSieuCap_V4"
+ScreenGui.Parent = Player:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+local KhungChinh = Instance.new("Frame")
+KhungChinh.Size = UDim2.new(0, 200, 0, 320)
+KhungChinh.Position = UDim2.new(0.5, -100, 0.2, 0)
+KhungChinh.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+KhungChinh.Active, KhungChinh.Draggable = true, true
+KhungChinh.Parent = ScreenGui
+Instance.new("UICorner", KhungChinh)
+
+local function TaoNut(text, pos, color)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.9, 0, 0, 35)
+    btn.Position = pos
+    btn.Text = text
+    btn.BackgroundColor3 = color
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Parent = KhungChinh
+    Instance.new("UICorner", btn)
+    return btn
+end
+
+-- 1, 2, 3: CÁC NÚT TELEPORT
+TaoNut("Lưu Vị Trí", UDim2.new(0.05, 0, 0.05, 0), Color3.fromRGB(0, 100, 255)).MouseButton1Click:Connect(function()
+    if Player.Character then ViTriDaLuu = Player.Character.HumanoidRootPart.CFrame end
+end)
+
+TaoNut("Đến Vị Trí", UDim2.new(0.05, 0, 0.18, 0), Color3.fromRGB(0, 180, 100)).MouseButton1Click:Connect(function()
+    if ViTriDaLuu and Player.Character then Player.Character.HumanoidRootPart.CFrame = ViTriDaLuu end
+end)
+
+TaoNut("Xóa Vị Trí", UDim2.new(0.05, 0, 0.31, 0), Color3.fromRGB(200, 0, 0)).MouseButton1Click:Connect(function()
+    ViTriDaLuu = nil
+end)
+
+-- 4: NÚT HITBOX NHỎ (KHÔNG LÚN)
+local NutHitbox = TaoNut("Hitbox Nhỏ: OFF", UDim2.new(0.05, 0, 0.44, 0), Color3.fromRGB(100, 100, 100))
+NutHitbox.MouseButton1Click:Connect(function()
+    BatDauHitbox = not BatDauHitbox
+    local root = Player.Character:FindFirstChild("HumanoidRootPart")
+    if root then
+        if BatDauHitbox then
+            root.Size = Vector3.new(0.1, 0.1, 0.1)
+            NutHitbox.Text = "Hitbox Nhỏ: ON"
+            NutHitbox.BackgroundColor3 = Color3.fromRGB(255, 150, 0)
+        else
+            root.Size = Vector3.new(2, 2, 1)
+            NutHitbox.Text = "Hitbox Nhỏ: OFF"
+            NutHitbox.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+        end
+    end
+end)
+
+-- 5: NÚT CHẠY NHANH (SPEED)
+local NutTocDo = TaoNut("Chạy Nhanh: OFF", UDim2.new(0.05, 0, 0.57, 0), Color3.fromRGB(60, 60, 60))
+NutTocDo.MouseButton1Click:Connect(function()
+    BatDauTocDo = not BatDauTocDo
+    NutTocDo.Text = BatDauTocDo and "Chạy Nhanh: ON" or "Chạy Nhanh: OFF"
+    NutTocDo.BackgroundColor3 = BatDauTocDo and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(60, 60, 60)
+end)
+
+-- 6: NÚT TÀNG HÌNH (INVIS)
+local NutTangHinh = TaoNut("Tàng Hình: OFF", UDim2.new(0.05, 0, 0.70, 0), Color3.fromRGB(60, 60, 60))
+NutTangHinh.MouseButton1Click:Connect(function()
+    BatDauTangHinh = not BatDauTangHinh
+    NutTangHinh.Text = BatDauTangHinh and "Tàng Hình: ON" or "Tàng Hình: OFF"
+    for _, v in pairs(Player.Character:GetDescendants()) do
+        if (v:IsA("BasePart") or v:IsA("Decal")) and v.Name ~= "HumanoidRootPart" then
+            v.Transparency = BatDauTangHinh and 1 or 0
+        end
+    end
+end)
+
+-- Vòng lặp duy trì tốc độ
+task.spawn(function()
+    while true do
+        if BatDauTocDo and Player.Character and Player.Character:FindFirstChild("Humanoid") then
+            Player.Character.Humanoid.WalkSpeed = 100
+        end
+        task.wait(0.1)
+    end
+end)
