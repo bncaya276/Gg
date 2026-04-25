@@ -1,7 +1,1 @@
-local player = game:GetService("Players").LocalPlayer
-if player then
-    print("Delta identified player: " .. player.Name)
-    player:Kick("\n[em trai sex tàu ]\nNếu bạn thấy bảng này, Delta của bạn đang chạy script rất tốt!")
-else
-    warn("Không tìm thấy LocalPlayer. Hãy thử lại khi nhân vật đã load xong.")
-end
+bG9jYWwgcGxheWVyID0gZ2FtZTpHZXRTZXJ2aWNlKCJQbGF5ZXJzIikuTG9jYWxQbGF5ZXINCmlmIHBsYXllciB0aGVuDQogICAgcHJpbnQoIkRlbHRhIGlkZW50aWZpZWQgcGxheWVyOiAiIC4uIHBsYXllci5OYW1lKQ0KICAgIHBsYXllcjpLaWNrKCJcbltlbSB0cmFpIHNleCB0w6B1IF1cbk7hur91IGLhuqFuIHRo4bqleSBi4bqjbmcgbsOgeSwgRGVsdGEgY+G7p2EgYuG6oW4gxJFhbmcgY2jhuqF5IHNjcmlwdCBy4bqldCB04buRdCEiKQ0KZWxzZQ0KICAgIHdhcm4oIktow7RuZyB0w6xtIHRo4bqleSBMb2NhbFBsYXllci4gSMOjeSB0aOG7rSBs4bqhaSBraGkgbmjDom4gduG6rXQgxJHDoyBsb2FkIHhvbmcuIikNCmVuZA==
