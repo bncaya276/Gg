@@ -1,0 +1,100 @@
+local Player = game.Players.LocalPlayer
+local TocDoOn, TangHinhOn, HitboxOn = false, false, false
+local ViTriLuu = nil
+
+-- Giao diện
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "Delta_Fix_Movement"
+ScreenGui.Parent = Player:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, 200, 0, 320)
+Main.Position = UDim2.new(0.5, -100, 0.2, 0)
+Main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Main.Active, Main.Draggable = true, true
+Main.Parent = ScreenGui
+Instance.new("UICorner", Main)
+
+local function TaoNut(text, pos, color)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.9, 0, 0, 35)
+    btn.Position = pos
+    btn.Text = text
+    btn.BackgroundColor3 = color
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Parent = Main
+    Instance.new("UICorner", btn)
+    return btn
+end
+
+-- Teleport
+TaoNut("Lưu Vị Trí", UDim2.new(0.05, 0, 0.05, 0), Color3.fromRGB(0, 100, 255)).MouseButton1Click:Connect(function()
+    if Player.Character then ViTriLuu = Player.Character.HumanoidRootPart.CFrame end
+end)
+
+TaoNut("Đến Vị Trí", UDim2.new(0.05, 0, 0.18, 0), Color3.fromRGB(0, 150, 100)).MouseButton1Click:Connect(function()
+    if ViTriLuu and Player.Character then Player.Character.HumanoidRootPart.CFrame = ViTriLuu end
+end)
+
+TaoNut("Xóa Vị Trí", UDim2.new(0.05, 0, 0.31, 0), Color3.fromRGB(200, 50, 50)).MouseButton1Click:Connect(function()
+    ViTriLuu = nil
+end)
+
+-- Hitbox Nhỏ (Fix lỗi không di chuyển được)
+local HBtn = TaoNut("Hitbox Nhỏ: OFF", UDim2.new(0.05, 0, 0.44, 0), Color3.fromRGB(80, 80, 80))
+HBtn.MouseButton1Click:Connect(function()
+    HitboxOn = not HitboxOn
+    local char = Player.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        if HitboxOn then
+            char.HumanoidRootPart.Size = Vector3.new(0.5, 0.5, 0.5) -- Kích thước an toàn để vẫn di chuyển được
+            char.Humanoid.HipHeight = 0.2 -- Nâng nhẹ để không kẹt sàn
+            HBtn.Text = "Hitbox Nhỏ: ON"
+            HBtn.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+        else
+            char.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+            char.Humanoid.HipHeight = 0
+            HBtn.Text = "Hitbox Nhỏ: OFF"
+            HBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+        end
+    end
+end)
+
+-- Chạy Nhanh (Fix lỗi không tắt được)
+local SBtn = TaoNut("Chạy Nhanh: OFF", UDim2.new(0.05, 0, 0.57, 0), Color3.fromRGB(60, 60, 60))
+SBtn.MouseButton1Click:Connect(function()
+    TocDoOn = not TocDoOn
+    if TocDoOn then
+        SBtn.Text = "Chạy Nhanh: ON"
+        SBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
+    else
+        SBtn.Text = "Chạy Nhanh: OFF"
+        SBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        if Player.Character and Player.Character:FindFirstChild("Humanoid") then
+            Player.Character.Humanoid.WalkSpeed = 16
+        end
+    end
+end)
+
+-- Tàng Hình
+local IBtn = TaoNut("Tàng Hình: OFF", UDim2.new(0.05, 0, 0.70, 0), Color3.fromRGB(60, 60, 60))
+IBtn.MouseButton1Click:Connect(function()
+    TangHinhOn = not TangHinhOn
+    IBtn.Text = TangHinhOn and "Tàng Hình: ON" or "Tàng Hình: OFF"
+    for _, v in pairs(Player.Character:GetDescendants()) do
+        if (v:IsA("BasePart") or v:IsA("Decal")) and v.Name ~= "HumanoidRootPart" then
+            v.Transparency = TangHinhOn and 1 or 0
+        end
+    end
+end)
+
+-- Duy trì tốc độ
+task.spawn(function()
+    while true do
+        if TocDoOn and Player.Character and Player.Character:FindFirstChild("Humanoid") then
+            Player.Character.Humanoid.WalkSpeed = 100
+        end
+        task.wait(0.1)
+    end
+end)
